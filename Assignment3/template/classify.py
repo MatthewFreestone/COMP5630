@@ -35,14 +35,22 @@ import numpy as np
 from sklearn.linear_model import Perceptron
 
 def trainPerceptron(train_set, train_labels, learning_rate, max_iter):
-    # TODO: Write your code here
-    # return the trained weight and bias parameters
+    datapoints = train_set.shape[0]
+    b = 0
+    W = np.zeros((len(train_set[0])))
+    for _ in range(max_iter):
+        for X, Y in zip(train_set, train_labels):
+            pred_label = 1 if (np.dot(W, X) + b) > 0 else 0
+            if pred_label != Y:
+                W = W + learning_rate * (Y - pred_label) * X
+                b = b + learning_rate * (Y - pred_label)
     return W, b
 
 def classifyPerceptron(train_set, train_labels, dev_set, learning_rate, max_iter):
     # TODO: Write your code here
     # Train perceptron model and return predicted labels of development set
-
-    return []
+    W,b = trainPerceptron(train_set, train_labels, learning_rate, max_iter)
+    pred_labels = [1 if (np.dot(W, X) + b) > 0 else 0 for X in dev_set]
+    return pred_labels
 
 
