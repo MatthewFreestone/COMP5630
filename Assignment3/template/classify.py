@@ -35,7 +35,6 @@ import numpy as np
 from sklearn.linear_model import Perceptron
 
 def trainPerceptron(train_set, train_labels, learning_rate, max_iter):
-    datapoints = train_set.shape[0]
     b = 0
     W = np.zeros((len(train_set[0])))
     for _ in range(max_iter):

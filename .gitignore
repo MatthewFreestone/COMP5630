@@ -1,5 +1,5 @@
 venv/
 Assignment1/census-income.*
-.zip
+*.zip
 .ipynb_checkpoints/
 __pycache__/
