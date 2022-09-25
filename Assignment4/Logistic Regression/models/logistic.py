@@ -37,9 +37,11 @@ class Logistic:
                 N examples with D dimensions
             y_train: a numpy array of shape (N,) containing training labels
         """
-        NUM_REPORTS = 5
-        
+        NUM_REPORTS = 10
         N, D = X_train.shape
+        LOWER_LR = True
+
+        
         # For this assignment, the bias w_0 will be at the begining of the weight vector
         self.w = np.zeros(D+1)
         X_train_extended = np.append(np.ones(N).reshape(N,1), X_train, axis=1)
@@ -49,11 +51,14 @@ class Logistic:
             error = y_train - self.sigmoid(np.dot(X_train_extended, self.w))
             # w_change is a (N,) vector
             w_change = np.sum((X_train_extended.T * error), axis=1)
-            self.w += self.lr * w_change
-            max_change = np.max(np.abs(w_change))
+            if LOWER_LR:
+                scaled_lr = self.lr - (self.lr / (self.epochs - epoch))
+                self.w += scaled_lr * w_change
+            else:
+                self.w += self.lr * w_change
 
             if epoch % (np.ceil(self.epochs / NUM_REPORTS)) == 0:
-                print(f"Epoch {epoch}: unweighted max change in weights = {max_change}")
+                print(f"Epoch {epoch}: unweighted max change in weights = {np.max(np.abs(w_change))}")
             
         pass
 
