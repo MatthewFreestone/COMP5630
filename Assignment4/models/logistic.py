@@ -57,8 +57,8 @@ class Logistic:
             else:
                 self.w += self.lr * w_change
 
-            if epoch % (np.ceil(self.epochs / NUM_REPORTS)) == 0:
-                print(f"Epoch {epoch}: unweighted max change in weights = {np.max(np.abs(w_change))}")
+            # if epoch % (np.ceil(self.epochs / NUM_REPORTS)) == 0:
+            #     print(f"Epoch {epoch}: unweighted max change in weights = {np.max(np.abs(w_change))}")
             
         pass
 
