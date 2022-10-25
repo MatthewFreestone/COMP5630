@@ -4,7 +4,7 @@ import numpy as np
 
 
 class SVM:
-    def __init__(self, n_class: int, lr: float, epochs: int, reg_const: float, feature_dimension: int = 22):
+    def __init__(self, n_class: int, lr: float, epochs: int, reg_const: float):
         """Initialize a new classifier.
 
         Parameters:
@@ -13,7 +13,7 @@ class SVM:
             epochs: the number of epochs to train for
             reg_const: the regularization constant
         """
-        self.w = np.zeros(feature_dimension) # TODO: change this
+        self.w = np.array([0]) 
         self.alpha = lr
         self.epochs = epochs
         self.reg_const = reg_const
@@ -77,11 +77,14 @@ class SVM:
                 N examples with D dimensions
             y_train: a numpy array of shape (N,) containing training labels
         """
-        N,D = X_train.shape
-        BATCH_SIZE = N
-
         # transform y_train from {0,1} to {-1,1}
         y_train = np.where(y_train == 0, -1, 1)
+
+        # add column for bias to X
+        X_train = np.append(np.ones((X_train.shape[0],1)), X_train, axis=1)
+
+        N,D = X_train.shape
+        BATCH_SIZE = N
 
         # w0 is implicitly at the beginning
         self.w = np.zeros(D)
@@ -103,6 +106,7 @@ class SVM:
                 length N, where each element is an integer giving the predicted
                 class.
         """
+        X_test = np.append(np.ones((X_test.shape[0],1)), X_test, axis=1)
         N,D = X_test.shape
         assert self.w.shape[0] == D
         pred = np.dot(X_test, self.w)
