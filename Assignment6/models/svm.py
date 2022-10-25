@@ -4,7 +4,7 @@ import numpy as np
 
 
 class SVM:
-    def __init__(self, n_class: int, lr: float, epochs: int, reg_const: float):
+    def __init__(self, n_class: int, lr: float, epochs: int, reg_const: float, feature_dimension: int = 22):
         """Initialize a new classifier.
 
         Parameters:
@@ -13,11 +13,19 @@ class SVM:
             epochs: the number of epochs to train for
             reg_const: the regularization constant
         """
-        self.w = None  # TODO: change this
+        self.w = np.zeros(feature_dimension) # TODO: change this
         self.alpha = lr
         self.epochs = epochs
         self.reg_const = reg_const
         self.n_class = n_class
+        assert self.n_class == 2
+
+    def cost(self, X_test, y_test):
+        # N = X_test.shape[0]
+        distances = 1 - y_test * np.dot(X_test, self.w)
+        distances[distances < 0] = 0
+        hinge_loss = self.reg_const * np.sum(distances)
+        return 0.5 * np.dot(self.w,self.w) + hinge_loss
 
     def calc_gradient(self, X_train: np.ndarray, y_train: np.ndarray) -> np.ndarray:
         """Calculate gradient of the svm hinge loss.
@@ -35,8 +43,29 @@ class SVM:
             the gradient with respect to weights w; an array of the same shape
                 as w
         """
-        # TODO: implement me
-        return
+        N,D = X_train.shape
+        # N,   1     N,      N,
+        dist = 1 - y_train * np.dot(X_train, self.w)
+
+        # Matrix N,D    1             N,1                   N,D
+        updates = self.reg_const * y_train[:,np.newaxis] * X_train
+        # Matrix N,d          Maxtrix N,1                   N,D
+        updates = (dist > 0).astype(int)[:,np.newaxis] * updates
+        updates = -updates + self.w
+        
+        # D Vector 
+        return np.sum(updates, axis=0)/N
+
+        ## Less vectorized version, about 15x slower
+        # N,D = X_train.shape
+        # dist = 1 - y_train * np.dot(X_train, self.w)
+        # res = np.zeros(D)
+        # for i, v in enumerate(dist):
+        #     if max(0,v) != 0:
+        #         res += self.w - (self.reg_const * y_train[i] * X_train[i])
+        #     else:
+        #         res += self.w
+        # return res/N
 
     def train(self, X_train: np.ndarray, y_train: np.ndarray):
         """Train the classifier.
@@ -48,7 +77,18 @@ class SVM:
                 N examples with D dimensions
             y_train: a numpy array of shape (N,) containing training labels
         """
-        # TODO: implement me
+        N,D = X_train.shape
+        BATCH_SIZE = N
+
+        # transform y_train from {0,1} to {-1,1}
+        y_train = np.where(y_train == 0, -1, 1)
+
+        # w0 is implicitly at the beginning
+        self.w = np.zeros(D)
+        for _ in range(self.epochs):
+            for i in range((N // BATCH_SIZE)):
+                X_curr, y_curr = X_train[i*BATCH_SIZE:(i+1)*BATCH_SIZE],  y_train[i*BATCH_SIZE:(i+1)*BATCH_SIZE]
+                self.w -= self.alpha * self.calc_gradient(X_curr, y_curr)
         return
 
     def predict(self, X_test: np.ndarray) -> np.ndarray:
@@ -63,5 +103,13 @@ class SVM:
                 length N, where each element is an integer giving the predicted
                 class.
         """
-        # TODO: implement me
-        return
+        N,D = X_test.shape
+        assert self.w.shape[0] == D
+        pred = np.dot(X_test, self.w)
+
+        return (pred > 0).astype(int)
+        # pred = np.array([])
+        # for i in range(X_test.shape[0]):
+        #     yp = 1 if np.dot(self.w, X_test[i]) > 0 else 0
+        #     pred = np.append(pred, yp)
+        # return pred
