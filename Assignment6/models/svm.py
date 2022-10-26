@@ -56,17 +56,6 @@ class SVM:
         # D Vector 
         return np.sum(updates, axis=0)/N
 
-        ## Less vectorized version, about 15x slower
-        # N,D = X_train.shape
-        # dist = 1 - y_train * np.dot(X_train, self.w)
-        # res = np.zeros(D)
-        # for i, v in enumerate(dist):
-        #     if max(0,v) != 0:
-        #         res += self.w - (self.reg_const * y_train[i] * X_train[i])
-        #     else:
-        #         res += self.w
-        # return res/N
-
     def train(self, X_train: np.ndarray, y_train: np.ndarray):
         """Train the classifier.
 
@@ -112,8 +101,3 @@ class SVM:
         pred = np.dot(X_test, self.w)
 
         return (pred > 0).astype(int)
-        # pred = np.array([])
-        # for i in range(X_test.shape[0]):
-        #     yp = 1 if np.dot(self.w, X_test[i]) > 0 else 0
-        #     pred = np.append(pred, yp)
-        # return pred
